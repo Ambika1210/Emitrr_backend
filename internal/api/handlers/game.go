@@ -88,12 +88,16 @@ func WebSocketHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Disconnection cleanup with 30s window
-	handleDisconnect(player)
+	handleDisconnect(player, conn)
 }
 
-func handleDisconnect(p *service.Player) {
-	p.IsActive = false
-	logger.Info("game.go >>>> handleDisconnect >>>>> Player " + p.Username + " offline. Waiting 30s...")
+func handleDisconnect(p *service.Player, closingConn *websocket.Conn) {
+	service.GlobalMu.Lock()
+	if p.Conn == closingConn {
+		p.IsActive = false
+		logger.Info("game.go >>>> handleDisconnect >>>>> Player " + p.Username + " offline. Waiting 30s...")
+	}
+	service.GlobalMu.Unlock()
 
 	time.AfterFunc(30*time.Second, func() {
 		service.GlobalMu.Lock()
