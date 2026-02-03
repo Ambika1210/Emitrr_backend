@@ -15,7 +15,8 @@ const fileName = "db.go"
 func Connect() error {
 	dsn := os.Getenv("DATABASE_URL")
 	if dsn == "" {
-		dsn = "postgres://postgres:postgres@localhost:5432/connect_four?sslmode=disable"
+		logger.Error("db.go >>>> Connect >>>>> DATABASE_URL environment variable is not set", nil)
+		return os.ErrNotExist
 	}
 
 	var err error
